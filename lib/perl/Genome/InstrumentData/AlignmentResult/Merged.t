@@ -17,6 +17,7 @@ BEGIN {
 my $pkg = 'Genome::InstrumentData::AlignmentResult::Merged';
 use_ok($pkg);
 
+my $test_name = 'merged_unit_test';
 my $aligner_name = 'bwa';
 my $convert_name = Genome::InstrumentData::AlignmentResult->_resolve_subclass_name_for_aligner_name($aligner_name);
 
@@ -60,7 +61,7 @@ my @params = (
      duplication_handler_name    => 'picard',
      duplication_handler_version => $picard_version,
      instrument_data_id          => [map($_->id, @instrument_data)],
-     test_name                   => 'merged_unit_test',
+     test_name                   => $test_name,
      instrument_data_segment     => [map {$_->id . ':A:2:read_group'} @instrument_data],
 );
 
@@ -160,6 +161,7 @@ sub generate_individual_alignment_results {
         reference_build  => $reference_build,
         instrument_data_segment_type => 'read_group',
         instrument_data_segment_id   => 'A:2',
+        test_name        => $test_name,
     );
 
     for my $i (0, 1) {
@@ -169,7 +171,7 @@ sub generate_individual_alignment_results {
             output_dir         => $tmp_shortcut_path1 ."/$i",
             instrument_data_id => $instrument_data[$i]->id,
         );
-        $alignment_result->lookup_hash($alignment_result->calculate_lookup_hash());
+        $alignment_result->recalculate_lookup_hash;
 
         isa_ok($alignment_result, 'Genome::InstrumentData::AlignmentResult');
         push @alignment_results, $alignment_result;
@@ -183,7 +185,7 @@ sub generate_individual_alignment_results {
             instrument_data_id => $instrument_data[$i]->id,
             filter_name        => 'forward-only',
         );
-        $alignment_result->lookup_hash($alignment_result->calculate_lookup_hash());
+        $alignment_result->recalculate_lookup_hash;
         isa_ok($alignment_result, 'Genome::InstrumentData::AlignmentResult');
         push @alignment_results, $alignment_result;
     }
